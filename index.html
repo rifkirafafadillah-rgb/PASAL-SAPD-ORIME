@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ORIME Criminal Code</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  color:#333;
+  background:#071b0c;
+}
+
+/* HEADER */
+.top-header{
+  background:linear-gradient(180deg,#0f7f3b,#57ff8f);
+  padding:14px 18px;
+  border-bottom:2px solid #c9a227;
+}
+
+.top-header h1{
+  color:white;
+  text-shadow:
+  0 0 10px #57ff8f,
+  0 0 20px #57ff8f;
+}
+
+.top-header small{
+  font-size:12px;
+  color:#7a5c00;
+}
+
+/* CONTAINER */
+.container{
+  max-width:1100px;
+  margin:20px auto;
+  padding:15px;
+}
+
+/* SECTION */
+.section{
+  background:#0ea;
+  border-radius:12px;
+  margin-bottom:12px;
+  overflow:hidden;
+  border:1px solid #e6d38a;
+  box-shadow:0 2px 6px rgba(0,0,0,0.05);
+}
+
+.section-header{
+  padding:12px;
+  background:linear-gradient(90deg,#0ea54c,#57ff8f);
+  color:#071b0c;
+  display:flex;
+  justify-content:space-between;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.section-body{display:none}
+
+/* TABLE */
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+th{
+  background:#faf3d1;
+  color:#5a4500;
+}
+
+th,td{
+  padding:8px;
+  text-align:center;
+  border-bottom:1px solid #f0e2a0;
+}
+
+/* BUTTON */
+.actions{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin:20px 0;
+}
+
+button{
+  padding:14px;
+  border:none;
+  border-radius:14px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+/* BUTTON WARNA */
+.reset{
+  background:#19c55b;
+  color:#fff;
+}
+
+.blue{
+  background:#57ff8f;
+  color:#071b0c;
+}
+
+/* RESULT BOX */
+.result{
+  background:#102218;
+  color:white;
+  border-radius:12px;
+  padding:15px;
+  border:1px solid #e6d38a;
+}
+
+.row{
+  display:flex;
+  justify-content:space-between;
+  margin:6px 0;
+}
+
+/* TOAST */
+.toast{
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#19c55b;
+  color:#fff;
+  padding:10px 18px;
+  border-radius:20px;
+  opacity:0;
+  transition:.3s;
+  font-weight:bold;
+}
+
+.toast.show{opacity:1}
+
+/* ===== ANIMATION ===== */
+
+@keyframes fadeUp{
+  from{
+    opacity:0;
+    transform:translateY(20px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+.container{
+  animation:fadeUp .8s ease;
+}
+
+.section{
+  animation:fadeUp .5s ease;
+  transition:.3s;
+}
+
+.section:hover{
+  transform:translateY(-4px);
+  box-shadow:0 0 20px rgba(87,255,143,.4);
+}
+
+button{
+  transition:.3s;
+}
+
+button:hover{
+  transform:scale(1.05);
+}
+
+.result{
+  animation:fadeUp .8s ease;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="top-header">
+  <h1>📜 PASAL-PASAL ORIME SAPD </h1>
+  <small>&lt;/&gt; Developed by 👑Kitcuyy x Suparman</small>
+</div>
+
+<div class="container">
+  <div id="content"></div>
+
+  <div class="actions">
+    <button class="reset" onclick="resetAll()">⟳ Reset</button>
+    <button class="blue" onclick="copyPasal()">📄 Copy Pasal</button>
+    <button class="blue" onclick="copyValue('denda')">💲 Copy Denda</button>
+    <button class="blue" onclick="copyValue('penjara')">📅 Copy Penjara</button>
+  </div>
+
+  <div class="result">
+    <b>Pelanggaran Dipilih:</b>
+    <div id="pasalList">-</div>
+    <hr>
+    <div class="row"><span>Total Denda</span><b><span id="totalDenda">0</span></b></div>
+    <div class="row"><span>Total Penjara</span><b><span id="totalPenjara">0</span> bulan</b></div>
+    <div class="row"><span>Total Impound</span><b><span id="totalImpound">0</span> hari</b></div>
+  </div>
+</div>
+
+<div id="toast" class="toast">Disalin ke clipboard</div>
+
+<script>
+/* ===== NAMA PASAL ===== */
+const pasalName={
+  A:"Lalu Lintas",
+  B:"Pelanggaran Umum",
+  C:"Narkotika",
+  D:"Senjata & Barang Terlarang",
+  E:"Kejahatan & Terorisme",
+  F:"Kejahatan Finansial & Ekonomi",
+  G:"Pelanggaran Perilaku Tidak Wajar"
+};
+
+/* ===== DATA ===== */
+const data = {
+
+/* ================= PASAL A – LALU LINTAS (20) ================= */
+A:[
+["A01","Tidak Memiliki SIM",500,0,1],
+["A02","Berkendara Ugal-ugalan",0,0,1],
+["A03","Parkir Sembarangan",0,0,2],
+["A04","Kendaraan tidak ada plate nomor",500,0,1],
+["A05","Kabur dari kecelakaan",1000,5,1],
+["A06","Kecelakaan hingga menimbulkan korban jiwa",1200,10,2],
+["A07","Melawan arus lalu lintas",500,0,1],
+["A08","Mengangkut penumpang lebih dari kapasitas",1000,0,1],
+["A09","Menabrak rambu lalu lintas",1000,0,2],
+["A10","Memodifikasi kendaraan ilegal",1200,0,2],
+["A11","Balap liar",2000,15,2],
+["A12","Menerobos barikade kepolisian",1600,5,3],
+["A13","Mengemudi Saat Mabuk",1000,5,2],
+["A14","Memgemudi berkecepatan tinggi",500,0,1],
+["A15","Mengemudi di Trotoar",500,0,2],
+],
+
+/* ================= PASAL B – PELANGGARAN UMUM (26) ================= */
+B:[
+["B01","Kekerasan ringan",2000,8,0],
+["B02","Meludah sembarangan",1000,5,0],
+["B03","Buang air kecil/besar sembarangan",1500,5,0],
+["B04","Menghalangi/menipu petugas saat bertugas",1500,8,0],
+["B05","Menyebarkan ujaran buruk individu/kelompok",2000,10,0],
+["B06","Berkelahi di tempat umum",2000,10,0],
+["B07","Gangguan ketertiban umum",2000,10,0],
+["B08","Pencurian",3000,12,0],
+["B09","Vandalisme",3200,13,1],
+["B10","Menggunakan atribut milik instansi secara ilegal",3000,12,0],
+["B11","Menyamar sebagai petugas instansi untuk keuntungan pribadi",2800,13,0],
+["B12","Percobaan suap terhadap petugas",2000,5,1],
+["B13","Memberikan laporan/informasi palsu kepada petugas",2000,8,0],
+["B14","Memiliki hewan yang dilindungi (hiu dan penyu)",1800,5,0],
+["B15","Meperjualbelikan hewan yang dilindungi",2000,8,0],
+["B16","Mengumpulkan massa untuk menciptakan Kekacauan",3000,12,0],
+["B17","ikut serta dalam Kerusuhan yang menyebabkan kerugian",35000,10,0],
+["B18","Menolak membubarkan diri",2000,8,0],
+["B19","Melakukan penghakiman secara sepihak",1500,5,0],
+["B20","Melakukan aktivitas pemburuan tanpa lisensi pemburu",3400,13,0],
+["B21","Pelanggaran Jam Malam",3400,10,0],
+["B22","Mengganggu ketentraman umum dengan suara keras",1400,10,0],
+["B23","Menghina simbol negara atau instansi",3500,14,0],
+["B24","Menolak perintah sah dari petugas",2000,8,0],
+["B25","Melakukan tindakan asusila di tempat umum",4000,15,0],
+["B26","Mencoba melarikan diri",2000,8,0]
+],
+
+/* ================= PASAL C – NARKOTIKA (13) ================= */
+C:[
+["C01","Berada di tempat narkotika",3000,10,0],
+["C02","Terlibat dalam pembuatan narkotika",3100,12,0],
+["C03","Menjual atau mendistribusikan narkotika",3400,14,0],
+["C04-1","Membawa kanabis (1-10 pcs)",2900,10,0],
+["C04-2","Membawa kanabis (11-25 pcs)",2900,12,0],
+["C04-3","membawa kanabis (>25 pcs)",2900,14,0],
+["C05-1","Membawa marijuana (1-5 pcs)",3200,11,0],
+["C05-2","Membawa marijuana (6-10 pcs)",3200,13,0],
+["C05-3","Membawa marijuana (>10 pcs)",3200,15,0],
+["C06","Pencabutan kanabis",3500,14,0],
+["C07","Kepemilikan sabu",3600,15,0],
+["C08","Menyimpan narkotika di bagasi kendaraan",3600,16,2]
+],
+
+/* ================= PASAL D – SENJATA & BARANG TERLARANG (12) ================= */
+D:[
+["D01","Menyalahgunakan Senjata Tajam/tumpul",3500,10,0],
+["D02-1","Memiliki Senjata Api Ilegal (FIRST CLASS)",3700,15,0],
+["D02-2","Memiliki Senjata Api Ilegal (SECOND CLASS)",4000,17,0],
+["D02-3","Memiliki Senjata Api Ilegal (THIRD CLASS)",4300,19,0],
+["D05","Mempunyai kevlar",3800,14,0],
+["D06","Memiliki bahan peledak ilegal",3800,18,0],
+["D07","Menggunakan senjata untuk menakut-nakuti",3500,14,0]
+],
+
+/* ================= PASAL E – KEJAHATAN & TERORISME (16) ================= */
+E:[
+["E01","Pembegalan ",3800,16,0],
+["E02","Perampokan Warung",4200,18,0],
+["E03","Pencurian monbil (carstealing)",4300,20,0],
+["E04","Penyerangan terhadap instansi yang sedang bertugas",4400,18,0],
+["E05","Melakukan penyanderaan terhadap warga/instansi",4800,20,0],
+["E06","peperangan bersenjata antar Kelompok",4700,20,0],
+["E07","Pencurian dengan kekerasan",4500,18,0],
+["E08","Perampokan bersenjata (THIRD CLASS)",30000,35,0],
+["E09","Pemerasan dengan ancaman",16000,18,0],
+["E10","Terorisme (potensi persidangan)",5500,25,0],
+["E11","Penyanderaan massal (potensi Persidangan)",8000,30,0],
+["E12","Pembunuhan (Potensi persidangan)",8000,30,0],
+["E13","Penghianatan terhadap negara (potensi persidangan)",8000,30,0],
+["E14","Perampokan bank fleca",3400,20,0],
+["E15","Perampokan bank besar",4500,28,0],
+["E16","Penembakan ke warga atau ke kepolisian",4500,20,0],
+["E17","Aksi Kekerasan Massal",4200,18,0],
+["E18","Pengambilan Packet",3500,15,0]
+],
+
+/* ================= PASAL F – KEJAHATAN FINANSIAL & EKONOMI (6) ================= */
+F:[
+["F01","Pencurian uang",3800,16,0],
+["F0102","Penipuan bisnis",4000,18,0],
+["F03","Pemalsuan dokumen keuangan",4200,20,0],
+["F04","Penghindaran pajak",3500,15,0],
+["F05","Perdagangan ilegal",3800,17,0],
+["F06","Penyelundupan barang ilegal",400,22,0]
+],
+
+/* ================= PASAL G – PERILAKU TIDAK WAJAR (6) ================= */
+G:[
+["G01","Perilaku membahayakan diri sendiri",2500,8,0],
+["G02","Menyalahgunakan informasi pribadi orang lain",2900,12,0],
+["G03","penyerangan tanpa motif yang jelas",4200,24,0],
+["G04","Penggunaan kendaraan sebagai senjata",3500,15,0],
+["G05","tindakan provokatif di tempat umum",3000,12,0],
+["G06","Anarkisme",5500,28,0]
+]
+
+};
+
+const content=document.getElementById("content");
+
+function toggle(e){
+  const b=e.nextElementSibling;
+  b.style.display=b.style.display==="block"?"none":"block";
+}
+
+function update(){
+  let d=0,p=0,i=0,ps=[];
+  document.querySelectorAll("input:checked").forEach(x=>{
+    d+=+x.dataset.d; p+=+x.dataset.p; i+=+x.dataset.i;
+    ps.push(x.dataset.kode);
+  });
+  totalDenda.textContent=d;
+  totalPenjara.textContent=p;
+  totalImpound.textContent=i;
+  pasalList.textContent=ps.length?ps.join(", "):"-";
+}
+
+function resetAll(){
+  document.querySelectorAll("input").forEach(x=>x.checked=false);
+  update();
+}
+
+function toast(){
+  const t=document.getElementById("toast");
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),1500);
+}
+
+function copyPasal(){
+  copyText(pasalList.textContent);
+}
+
+function copyValue(t){
+  copyText(
+    t==="denda" ? totalDenda.textContent :
+    t==="penjara" ? totalPenjara.textContent :
+    totalImpound.textContent
+  );
+}
+
+function copyText(text){
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(text)
+      .then(()=>toast());
+  }else{
+    const temp=document.createElement("textarea");
+    temp.value=text;
+    document.body.appendChild(temp);
+    temp.select();
+    document.execCommand("copy");
+    document.body.removeChild(temp);
+    toast();
+  }
+}
+
+/* ===== GENERATE PASAL ===== */
+for(let p in data){
+  let h=`
+  <div class="section">
+    <div class="section-header" onclick="toggle(this)">
+      <span>Pasal ${p} – ${pasalName[p]}</span><span>▼</span>
+    </div>
+    <div class="section-body">
+      <table>
+        <tr><th>Pilih</th><th>Kode</th><th>Nama</th><th>Denda</th><th>Penjara</th><th>Impound</th></tr>
+  `;
+  data[p].forEach(r=>{
+    h+=`
+    <tr>
+      <td><input type="checkbox" data-kode="${r[0]}" data-d="${r[2]}" data-p="${r[3]}" data-i="${r[4]}" onchange="update()"></td>
+      <td>${r[0]}</td><td>${r[1]}</td><td>$${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td>
+    </tr>`;
+  });
+  h+=`</table></div></div>`;
+  content.innerHTML+=h;
+}
+</script>
+
+</body>
+</html>
